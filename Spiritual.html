@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>الحرمين</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold-light: #E8D5A3;
+  --gold-bg: #FAF5E9;
+  --dark: #0D0F14;
+  --dark2: #1A1D25;
+  --dark3: #252933;
+  --green: #1D9E75;
+  --green-bg: #E1F5EE;
+  --blue: #185FA5;
+  --blue-bg: #E6F1FB;
+  --surface: #F8F8FA;
+  --border: #EAEAEE;
+  --text1: #0D0F14;
+  --text2: #5A5E6B;
+  --text3: #9CA3AF;
+  --radius: 16px;
+  --font: 'IBM Plex Sans Arabic', -apple-system, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: var(--font); background: var(--dark); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+#app { width: 100%; max-width: 390px; background: var(--surface); min-height: 100vh; position: relative; display: flex; flex-direction: column; box-shadow: 0 0 60px rgba(0,0,0,0.5); }
+
+/* TOPBAR */
+#topbar { background: var(--dark); padding: 14px 20px 12px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+.topbar-logo { display: flex; align-items: center; gap: 8px; }
+.topbar-logo-icon { width: 30px; height: 30px; }
+.topbar-name { font-size: 18px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+.topbar-name span { color: var(--gold); }
+.topbar-status { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.08); border-radius: 20px; padding: 5px 10px; }
+.dot-pulse { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+/* PAGES */
+#page-container { flex: 1; overflow-y: auto; padding-bottom: 76px; }
+#page-container::-webkit-scrollbar { display: none; }
+
+/* BOTTOM NAV */
+#bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 390px; background: var(--dark); border-top: 1px solid rgba(255,255,255,0.07); display: flex; padding: 8px 0 16px; z-index: 50; }
+.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; background: none; border: none; cursor: pointer; padding: 4px 0; color: rgba(255,255,255,0.35); font-size: 10px; font-family: var(--font); transition: color 0.2s; }
+.nav-btn.active { color: var(--gold); }
+.nav-btn svg { width: 20px; height: 20px; }
+.nav-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--gold); }
+
+/* HOME HERO */
+.hero { background: var(--dark); padding: 24px 20px 28px; position: relative; overflow: hidden; }
+.hero-kaaba { position: absolute; left: -10px; bottom: -10px; opacity: 0.06; font-size: 120px; line-height: 1; pointer-events: none; }
+.hero-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; color: var(--gold); text-transform: uppercase; margin-bottom: 6px; }
+.hero-title { font-size: 26px; font-weight: 700; color: #fff; line-height: 1.3; margin-bottom: 6px; letter-spacing: -0.5px; }
+.hero-title span { color: var(--gold); }
+.hero-sub { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 16px; }
+.hero-pill { display: inline-flex; align-items: center; gap: 6px; background: rgba(201,168,76,0.12); border: 0.5px solid rgba(201,168,76,0.3); border-radius: 20px; padding: 5px 12px; }
+.hero-pill-text { font-size: 12px; color: var(--gold-light); font-weight: 500; }
+
+/* PRAYER STRIP */
+.prayer-strip { background: var(--dark2); border-bottom: 1px solid rgba(255,255,255,0.06); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.prayer-strip::-webkit-scrollbar { display: none; }
+.prayer-inner { display: flex; min-width: max-content; padding: 0 8px; }
+.prayer-item { padding: 10px 14px; text-align: center; border-bottom: 2px solid transparent; }
+.prayer-item.next { border-bottom-color: var(--gold); }
+.prayer-name { font-size: 10px; color: rgba(255,255,255,0.4); margin-bottom: 2px; }
+.prayer-item.next .prayer-name { color: var(--gold); font-weight: 600; }
+.prayer-time { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.6); }
+.prayer-item.next .prayer-time { color: #fff; }
+
+/* HOME CONTENT */
+.home-content { padding: 0 16px 8px; background: var(--surface); }
+.section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); margin: 20px 0 10px; }
+.quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.quick-card { border-radius: var(--radius); padding: 16px 14px; text-align: right; cursor: pointer; border: 1px solid var(--border); background: #fff; width: 100%; transition: transform 0.12s, box-shadow 0.12s; }
+.quick-card:active { transform: scale(0.96); }
+.quick-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+.quick-card-icon { margin-bottom: 10px; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.quick-card-label { font-size: 13px; font-weight: 700; color: var(--text1); margin-bottom: 2px; }
+.quick-card-sub { font-size: 11px; color: var(--text3); }
+
+.suggested-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 8px; }
+.sug-btn { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 11px 14px; display: flex; align-items: center; gap: 10px; cursor: pointer; width: 100%; transition: background 0.12s; }
+.sug-btn:hover { background: var(--gold-bg); border-color: var(--gold-light); }
+.sug-icon { width: 26px; height: 26px; border-radius: 7px; background: var(--gold-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sug-text { font-size: 13px; color: var(--text2); flex: 1; text-align: right; font-family: var(--font); }
+
+/* MAP PAGE */
+.page-header { padding: 18px 20px 14px; border-bottom: 1px solid var(--border); background: #fff; }
+.page-title { font-size: 20px; font-weight: 700; color: var(--text1); letter-spacing: -0.3px; }
+.page-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+/* Floor tabs */
+.floor-tabs { display: flex; gap: 6px; padding: 10px 16px; background: #fff; border-bottom: 1px solid var(--border); overflow-x: auto; }
+.floor-tabs::-webkit-scrollbar { display: none; }
+.floor-tab { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); font-size: 12px; font-weight: 500; color: var(--text2); cursor: pointer; white-space: nowrap; font-family: var(--font); transition: all 0.15s; }
+.floor-tab.active { background: var(--dark); color: var(--gold); border-color: var(--dark); font-weight: 700; }
+
+/* Map canvas */
+.map-wrap { margin: 14px 16px 0; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); height: 195px; position: relative; background: #EAF0EA; }
+.map-grid-v { position: absolute; top: 0; bottom: 0; width: 0.5px; background: rgba(0,0,0,0.07); }
+.map-grid-h { position: absolute; left: 0; right: 0; height: 0.5px; background: rgba(0,0,0,0.07); }
+.member-pin { position: absolute; transform: translate(-50%,-100%); display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+.member-pin-avatar { width: 32px; height: 32px; border-radius: 50%; border: 2.5px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #fff; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,0.25); font-family: var(--font); }
+.member-pin-label { font-size: 9px; font-weight: 600; color: var(--dark); background: rgba(255,255,255,0.9); padding: 2px 5px; border-radius: 4px; margin-top: 2px; white-space: nowrap; }
+.you-pin { position: absolute; transform: translate(-50%,-50%); }
+.you-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--gold); border: 2.5px solid #fff; box-shadow: 0 0 0 4px rgba(201,168,76,0.25); }
+.haram-search-btn { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.93); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 11px; color: var(--text2); cursor: pointer; display: flex; align-items: center; gap: 5px; font-family: var(--font); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+/* Route alert */
+.route-alert { margin: 10px 16px 0; background: #FFF8E1; border: 1px solid #F5C842; border-radius: 10px; padding: 9px 12px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: #7A5F00; }
+
+/* Members list */
+.members-section { padding: 0 16px; }
+.member-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; }
+.member-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.member-avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.member-name { font-size: 14px; font-weight: 700; color: var(--text1); }
+.member-id { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.member-badge { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+.member-footer { display: flex; align-items: center; justify-content: space-between; }
+.member-loc { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
+.member-floor { font-size: 10px; color: var(--text3); margin-top: 2px; }
+.member-actions { display: flex; gap: 7px; }
+.action-btn { display: flex; align-items: center; gap: 5px; font-size: 12px; padding: 6px 11px; border-radius: 8px; cursor: pointer; font-weight: 600; font-family: var(--font); border: none; }
+
+/* ASSISTANT */
+#page-assistant { display: flex; flex-direction: column; height: calc(100vh - 120px); }
+.asst-header { padding: 18px 20px 14px; border-bottom: 1px solid var(--border); background: #fff; flex-shrink: 0; display: flex; align-items: center; gap: 10px; }
+.asst-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--dark); display: flex; align-items: center; justify-content: center; }
+.messages-area { flex: 1; overflow-y: auto; padding: 14px 14px 0; background: var(--surface); }
+.messages-area::-webkit-scrollbar { display: none; }
+.msg-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 10px; }
+.msg-row.user { flex-direction: row-reverse; }
+.msg-av { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.msg-bubble { padding: 10px 13px; max-width: 80%; font-size: 14px; color: var(--text1); line-height: 1.7; }
+.msg-bubble.bot { background: #fff; border: 1px solid var(--border); border-radius: 4px 14px 14px 14px; }
+.msg-bubble.user { background: var(--dark); color: #fff; border-radius: 14px 4px 14px 14px; }
+.typing-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); display: inline-block; animation: tdot 1.2s ease-in-out infinite; }
+@keyframes tdot { 0%,80%,100%{transform:translateY(0);opacity:0.3} 40%{transform:translateY(-5px);opacity:1} }
+.chat-bar { flex-shrink: 0; padding: 10px 14px 12px; background: #fff; border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: center; }
+#chat-input { flex: 1; padding: 10px 14px; border-radius: 22px; border: 1px solid var(--border); font-size: 14px; outline: none; background: var(--surface); color: var(--text1); direction: rtl; text-align: right; font-family: var(--font); transition: border-color 0.15s; }
+#chat-input:focus { border-color: var(--gold); }
+#send-btn { width: 38px; height: 38px; border-radius: 50%; background: var(--border); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; flex-shrink: 0; }
+#send-btn.ready { background: var(--dark); }
+
+/* DUAS */
+.dua-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 10px; }
+.dua-head { padding: 12px 16px; }
+.dua-arabic { font-size: 20px; font-weight: 700; color: var(--text1); line-height: 2.1; text-align: right; direction: rtl; margin: 14px 16px 10px; font-family: 'Georgia', 'Times New Roman', serif; }
+.dua-meaning { font-size: 13px; color: var(--text2); background: var(--surface); border-radius: 10px; padding: 10px 12px; margin: 0 16px 14px; }
+
+/* SETTINGS */
+.lang-row { display: flex; gap: 8px; }
+.lang-btn { flex: 1; padding: 11px 0; border-radius: 12px; border: 1px solid var(--border); background: #fff; font-size: 14px; color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-family: var(--font); font-weight: 500; transition: all 0.15s; }
+.lang-btn.active { border: 2px solid var(--dark); background: var(--dark); color: var(--gold); font-weight: 700; }
+.sett-row { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--border); background: #fff; }
+.sett-row:last-child { border-bottom: none; }
+.sett-icon { width: 34px; height: 34px; border-radius: 9px; background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+
+/* EMERGENCY BUTTON */
+.emg-btn { width: 100%; padding: 14px 0; border-radius: 14px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font); transition: all 0.15s; border: none; }
+.emg-btn.idle { background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; }
+.emg-btn.counting { background: #FFF8E1; border: 1px solid #F5C842; color: #7A5F00; }
+.emg-btn.sent { background: #dcfce7; border: 1px solid #86efac; color: #166534; }
+
+/* MODAL */
+.modal-bg { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.55); display: none; align-items: flex-end; justify-content: center; }
+.modal-bg.open { display: flex; }
+.modal-sheet { background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 390px; max-height: 88vh; display: flex; flex-direction: column; padding-bottom: 20px; }
+.modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 0; }
+.modal-title { padding: 12px 20px 10px; border-bottom: 1px solid var(--surface); font-size: 16px; font-weight: 700; color: var(--text1); }
+.modal-search { padding: 10px 14px; border-bottom: 1px solid var(--surface); display: flex; align-items: center; gap: 8px; background: var(--surface); border-radius: 12px; margin: 8px 14px; border: 1px solid var(--border); }
+.modal-search input { flex: 1; border: none; background: transparent; font-size: 14px; outline: none; color: var(--text1); direction: rtl; text-align: right; font-family: var(--font); }
+.modal-body { overflow-y: auto; flex: 1; padding: 0 14px; }
+.modal-body::-webkit-scrollbar { display: none; }
+.cats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+.cat-btn { border-radius: 12px; padding: 10px 6px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; text-align: center; transition: all 0.15s; font-family: var(--font); }
+.cat-btn.active { border: 2px solid var(--dark); background: var(--dark); }
+.cat-btn.active .cat-label { color: var(--gold); }
+.cat-icon { font-size: 20px; margin-bottom: 4px; }
+.cat-label { font-size: 11px; font-weight: 600; color: var(--text2); }
+.result-row { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 11px 13px; display: flex; align-items: center; gap: 11px; margin-bottom: 7px; }
+.result-icon-box { width: 34px; height: 34px; border-radius: 9px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; border: 1px solid var(--border); }
+.result-name { font-size: 13px; font-weight: 600; color: var(--text1); margin-bottom: 1px; }
+.result-note { font-size: 11px; color: var(--text3); }
+.result-dist { font-size: 11px; font-weight: 700; color: var(--blue); background: var(--blue-bg); padding: 3px 8px; border-radius: 6px; white-space: nowrap; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <div class="topbar-logo">
+      <svg class="topbar-logo-icon" viewBox="0 0 40 40" fill="none">
+        <circle cx="20" cy="11" r="5" fill="#C9A84C"/>
+        <circle cx="11" cy="26" r="5" fill="#C9A84C"/>
+        <circle cx="29" cy="26" r="5" fill="#C9A84C"/>
+      </svg>
+      <div class="topbar-name" id="topbar-name">الحرمين</div>
+    </div>
+    <div class="topbar-status">
+      <div class="dot-pulse"></div>
+      <span style="font-size:12px;color:rgba(255,255,255,0.6);" id="topbar-count">4/4</span>
+    </div>
+  </div>
+
+  <div id="page-container">
+
+    <!-- HOME -->
+    <div id="page-home">
+      <div class="hero">
+        <div class="hero-kaaba">🕋</div>
+        <p class="hero-label" id="hero-label">رحلة روحانية</p>
+        <h1 class="hero-title" id="hero-title">أهلاً بك في<br><span>الحرمين</span></h1>
+        <p class="hero-sub" id="hero-sub">كل ما تحتاجه في رحلتك بين يديك</p>
+        <div class="hero-pill">
+          <div class="dot-pulse"></div>
+          <span class="hero-pill-text" id="hero-badge">الكل متصل · 4 أعضاء</span>
+        </div>
+      </div>
+      <div class="prayer-strip"><div class="prayer-inner" id="prayer-strip"></div></div>
+      <div class="home-content">
+        <p class="section-label" id="quick-label">وصول سريع</p>
+        <div class="quick-grid" id="quick-grid"></div>
+        <p class="section-label" id="sug-label">أسئلة مقترحة</p>
+        <div class="suggested-list" id="suggested-list"></div>
+      </div>
+    </div>
+
+    <!-- MAP -->
+    <div id="page-tracking" style="display:none;">
+      <div class="page-header" style="background:#fff;">
+        <h1 class="page-title" id="tracking-title">العائلة</h1>
+        <p class="page-sub" id="tracking-sub">الكل في الحرم · 4 أعضاء</p>
+      </div>
+      <div class="floor-tabs" id="floor-tabs"></div>
+      <div class="map-wrap" id="map-wrap">
+        <div class="map-grid-v" style="left:33%"></div>
+        <div class="map-grid-v" style="left:66%"></div>
+        <div class="map-grid-h" style="top:50%"></div>
+        <div id="heatmap-layer"></div>
+        <div id="member-pins"></div>
+        <!-- You pin -->
+        <div class="you-pin" style="left:50%;top:50%;"><div class="you-dot"></div></div>
+        <button class="haram-search-btn" onclick="openPlaceSearch()" id="search-hint">
+          <svg width="11" height="11" fill="none" stroke="var(--green)" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span id="search-hint-text">ابحث عن مكان...</span>
+        </button>
+      </div>
+      <div class="route-alert" id="route-alert">
+        <span>🔄</span><span id="route-alert-text">مسار أقل ازدحاماً متاح — عبر باب الملك عبدالعزيز</span>
+      </div>
+      <div class="members-section">
+        <p class="section-label" id="members-label">أفراد العائلة</p>
+        <div id="members-list"></div>
+      </div>
+    </div>
+
+    <!-- ASSISTANT -->
+    <div id="page-assistant" style="display:none;">
+      <div class="asst-header">
+        <div class="asst-icon">
+          <svg width="18" height="18" fill="none" stroke="var(--gold)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+        </div>
+        <div>
+          <h1 class="page-title" style="font-size:17px;" id="asst-title">المساعد الذكي</h1>
+          <p class="page-sub" id="asst-sub">اسألني عن الحج والعمرة والحرمين</p>
+        </div>
+      </div>
+      <div class="messages-area" id="messages-area">
+        <div id="welcome-screen">
+          <div class="msg-row" style="margin-top:4px;">
+            <div class="msg-av" style="background:var(--dark);">
+              <svg width="14" height="14" fill="none" stroke="var(--gold)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+            </div>
+            <div class="msg-bubble bot" id="asst-welcome">السلام عليكم! أنا مساعدك الذكي للحرمين. اسألني عن الحج والعمرة والمناسك. كيف أقدر أساعدك؟</div>
+          </div>
+          <p style="font-size:11px;color:var(--text3);margin:10px 0 8px;text-align:right;" id="sug-chat-label">أسئلة مقترحة</p>
+          <div id="suggested-chat" style="display:flex;flex-direction:column;gap:7px;"></div>
+        </div>
+        <div id="chat-messages" style="display:none;flex-direction:column;gap:10px;"></div>
+        <div id="msg-end"></div>
+      </div>
+      <div class="chat-bar">
+        <input id="chat-input" placeholder="اكتب سؤالك..."/>
+        <button id="send-btn" onclick="sendMessage()">
+          <svg id="send-icon" width="15" height="15" fill="none" stroke="var(--text3)" stroke-width="2.5" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- DUAS -->
+    <div id="page-duas" style="display:none;">
+      <div class="page-header" style="background:#fff;">
+        <h1 class="page-title" id="duas-title">الأدعية المأثورة</h1>
+        <p class="page-sub" id="duas-sub">أدعية المناسك والأذكار</p>
+      </div>
+      <div style="padding:14px 16px 0;" id="duas-list"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="page-settings" style="display:none;">
+      <div class="page-header" style="background:#fff;">
+        <h1 class="page-title" id="sett-title">الإعدادات</h1>
+      </div>
+      <div style="padding:0 16px;">
+        <p class="section-label" id="lang-label">اللغة</p>
+        <div class="lang-row">
+          <button class="lang-btn active" id="btn-ar" onclick="setLang('ar')">✓ العربية</button>
+          <button class="lang-btn" id="btn-en" onclick="setLang('en')">English</button>
+        </div>
+        <p class="section-label" style="margin-top:22px;" id="gen-label">عام</p>
+        <div style="border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);" id="sett-rows"></div>
+        <!-- EMERGENCY -->
+        <div style="margin-top:16px;">
+          <button class="emg-btn idle" id="emg-btn" onclick="startEmergency()">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span id="emg-label">الطوارئ</span>
+          </button>
+          <!-- timer bar -->
+          <div id="emg-timer-wrap" style="display:none;margin-top:8px;">
+            <div style="height:4px;background:var(--border);border-radius:4px;overflow:hidden;">
+              <div id="emg-bar" style="height:100%;background:#F5C842;width:100%;transition:width 0.1s linear;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:6px;">
+              <button onclick="cancelEmergency()" style="font-size:12px;color:var(--text3);background:none;border:none;cursor:pointer;font-family:var(--font);" id="emg-cancel">إلغاء</button>
+              <span style="font-size:12px;color:var(--text2);" id="emg-countdown"></span>
+            </div>
+          </div>
+        </div>
+        <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:24px;" id="app-ver">الحرمين v1.0 · © 2026</p>
+      </div>
+    </div>
+
+  </div><!-- /page-container -->
+  <nav id="bottom-nav"></nav>
+</div>
+
+<!-- PLACE SEARCH MODAL -->
+<div class="modal-bg" id="place-modal" onclick="if(event.target===this)closePlaceSearch()">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">البحث داخل الحرم</div>
+    <div class="modal-search">
+      <svg width="14" height="14" fill="none" stroke="var(--text3)" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="place-input" placeholder="ابحث عن مكان..." oninput="onPlaceSearch()"/>
+      <button id="clr-btn" style="display:none;background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;" onclick="clearSearch()">×</button>
+    </div>
+    <div class="modal-body" id="place-body"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const SUGGESTED_SCRIPTS = {
+  ar: {
+    'كيف أؤدي الطواف؟': 'الطواف يبدأ من الحجر الأسود في الركن الشرقي للكعبة. تطوف سبعة أشواط حول الكعبة عكس اتجاه عقارب الساعة. ابدأ بالتكبير عند الحجر الأسود وحاول تقبيله أو الإشارة إليه. اجعل الكعبة على يسارك دائماً. بعد كل شوط تعود للحجر الأسود. ينتهي الطواف بصلاة ركعتين خلف مقام إبراهيم.',
+    'ما هي محظورات الإحرام؟': 'محظورات الإحرام تشمل:\n• قص الشعر أو قلم الأظافر\n• استخدام العطور والطيب\n• لبس المخيط للرجال\n• تغطية الرأس للرجال\n• عقد الزواج\n• الصيد\n• المباشرة الزوجية\n\nهذه المحظورات تسري من لحظة الإحرام حتى التحلل.',
+    'كيف أستخدم ميزة التتبع؟': 'ميزة التتبع تتيح لك رؤية مواقع أفراد عائلتك داخل الحرم في الوقت الفعلي. انتقل لصفحة "الخارطة" من القائمة السفلية. ستجد مواقع الجميع على الخريطة. يمكنك الضغط على اسم أي شخص لرؤية تفاصيله. كما تظهر بقعات الحرارة لمعرفة الأماكن المزدحمة.',
+    'ما المسافة من المسجد الحرام للمسعى؟': 'المسعى (بين الصفا والمروة) داخل المسجد الحرام مباشرة. طول المسعى المغطى 394 متراً. يمر السعي بجانب باب الصفا وباب المروة. يمكنك الوصول للصفا من الدور الأرضي أو الدور الأول عبر الأبواب الجنوبية للحرم.'
+  },
+  en: {
+    'How do I perform Tawaf?': 'Tawaf begins at the Black Stone on the eastern corner of the Kaaba. You circle the Kaaba seven times counterclockwise, keeping it to your left. Say Takbir at the Black Stone and try to kiss or point to it. After completing seven rounds, pray two rak\'ahs behind Maqam Ibrahim.',
+    'What are the prohibitions of Ihram?': 'Ihram prohibitions include:\n• Cutting hair or nails\n• Using perfume or fragrances\n• Wearing sewn clothes (for men)\n• Covering the head (for men)\n• Marriage contracts\n• Hunting\n• Marital relations\n\nThese apply from the moment of Ihram until you exit it.',
+    'How do I use the tracking feature?': 'The tracking feature shows your family members\' live locations inside the Haram. Go to the "Map" tab in the bottom menu. You\'ll see everyone\'s position on the map. Tap any name to see their details. Heatmap spots show crowded areas.',
+    'How far is Masjid al-Haram from Masa?': 'The Masa (between Safa and Marwah) is inside Masjid al-Haram itself. The covered walkway is 394 meters long. You can access Safa from the ground floor or first floor via the southern gates.'
+  }
+};
+
+const DATA = {
+  ar: {
+    appName:'الحرمين', tagline:'رفيقك في رحلتك الروحانية',
+    heroLabel:'رحلة روحانية', heroTitle:'أهلاً بك في<br><span>الحرمين</span>',
+    heroSub:'كل ما تحتاجه في رحلتك بين يديك', heroBadge:'الكل متصل · 4 أعضاء',
+    quickLabel:'وصول سريع', sugLabel:'أسئلة مقترحة',
+    home:'الرئيسية', map:'الخارطة', asst:'المساعد', duas:'الأدعية', sett:'الإعدادات',
+    mapCardLabel:'الخارطة', mapCardSub:'الموقع المباشر',
+    asstCardLabel:'المساعد الذكي', asstCardSub:'اسأل عن الحج والعمرة',
+    duasCardLabel:'الأدعية', duasCardSub:'أدعية الحرمين',
+    settCardLabel:'الإعدادات', settCardSub:'اللغة والإشعارات',
+    trackTitle:'العائلة', allInHaram:'الكل في الحرم', members:'أعضاء',
+    famLabel:'أفراد العائلة', connected:'متصل',
+    inHaram:'في الحرم', floor:'الدور', callBtn:'اتصال', alertBtn:'تنبيه',
+    asstTitle:'المساعد الذكي', asstSub:'اسألني عن الحج والعمرة والحرمين',
+    asstWelcome:'السلام عليكم! أنا مساعدك الذكي للحرمين. اسألني عن الحج والعمرة والمناسك. كيف أقدر أساعدك؟',
+    sugChatLabel:'أسئلة مقترحة', chatPlaceholder:'اكتب سؤالك...',
+    duasTitle:'الأدعية المأثورة', duasSub:'أدعية المناسك والأذكار',
+    settTitle:'الإعدادات', langLabel:'اللغة', genLabel:'عام',
+    emgLabel:'الطوارئ', emgCounting:s=>`إرسال خلال ${s} ثوانٍ...`, emgSent:'تم الإرسال ✓', emgCancel:'إلغاء',
+    routeAlert:'مسار أقل ازدحاماً متاح — عبر باب الملك عبدالعزيز',
+    modalTitle:'البحث داخل الحرم', placeCatsLabel:'تصفّح حسب الفئة',
+    searchHint:'ابحث عن مكان...', noResults:q=>`لا نتائج لـ «${q}»`,
+    errMsg:'عذراً، حدث خطأ. حاول مرة أخرى.',
+    appVer:'الحرمين v1.0 · © 2026',
+    prayers:[{n:'الفجر',t:'05:12'},{n:'الظهر',t:'12:28'},{n:'العصر',t:'15:45'},{n:'المغرب',t:'18:15'},{n:'العشاء',t:'19:45'}],
+    floors:[{id:'ground',label:'الأرضي'},{id:'first',label:'الأول'},{id:'second',label:'الثاني'},{id:'roof',label:'السطح'},{id:'basement',label:'البدروم'}],
+    settRows:[{icon:'🔔',label:'الإشعارات',sub:'التنبيهات والإشعارات'},{icon:'🔒',label:'الخصوصية',sub:'إعدادات الأمان'},{icon:'💬',label:'الدعم الفني',sub:'تواصل معنا'},{icon:'ℹ️',label:'حول التطبيق',sub:'الإصدار والمعلومات'}],
+    suggested:['كيف أؤدي الطواف؟','ما هي محظورات الإحرام؟','كيف أستخدم ميزة التتبع؟','ما المسافة من المسجد الحرام للمسعى؟'],
+    familyData:[
+      {name:'أحمد محمد',floor:'ground',x:'66%',y:'28%',color:'#185FA5',bg:'#E6F1FB',init:'أح',id:'BR-001',seen:2},
+      {name:'فاطمة أحمد',floor:'first',x:'38%',y:'55%',color:'#1D9E75',bg:'#E1F5EE',init:'فا',id:'BR-002',seen:0},
+      {name:'محمد (٨ س)',floor:'roof',x:'74%',y:'32%',color:'#185FA5',bg:'#E6F1FB',init:'مح',id:'BR-003',seen:1},
+      {name:'عائشة (٦ س)',floor:'second',x:'52%',y:'65%',color:'#533AB7',bg:'#EEEDFE',init:'عا',id:'BR-004',seen:0}
+    ],
+    floorNames:{ground:'الدور الأرضي',first:'الدور الأول',second:'الدور الثاني',roof:'السطح',basement:'البدروم'},
+    duasList:[
+      {title:'دعاء دخول الحرم',arabic:'اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ',meaning:'اللهم افتح لي أبواب رحمتك',color:'#1D9E75',bg:'#E1F5EE'},
+      {title:'دعاء الطواف',arabic:'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',meaning:'ربنا آتنا في الدنيا حسنة وفي الآخرة حسنة وقنا عذاب النار',color:'#185FA5',bg:'#E6F1FB'},
+      {title:'دعاء السعي',arabic:'إِنَّ الصَّفَا وَالْمَرْوَةَ مِن شَعَائِرِ اللَّهِ',meaning:'إن الصفا والمروة من شعائر الله',color:'#533AB7',bg:'#EEEDFE'},
+      {title:'دعاء عام',arabic:'اللَّهُمَّ إِنِّي أَسْأَلُكَ الْجَنَّةَ وَأَعُوذُ بِكَ مِنَ النَّارِ',meaning:'اللهم إني أسألك الجنة وأعوذ بك من النار',color:'#BA7517',bg:'#FAEEDA'}
+    ],
+    placeCats:[
+      {id:'kaaba',label:'الكعبة المشرفة',icon:'🕋'},
+      {id:'tawaf',label:'الطواف والسعي',icon:'🔄'},
+      {id:'safa',label:'الصفا والمروة',icon:'⛰️'},
+      {id:'special',label:'ذوو الاحتياجات',icon:'♿'},
+      {id:'childcare',label:'رعاية الأطفال',icon:'👶'},
+      {id:'elevators',label:'المصاعد',icon:'🛗'},
+      {id:'health',label:'المراكز الصحية',icon:'🏥'},
+      {id:'services',label:'الخدمات',icon:'🛎️'},
+      {id:'doors',label:'الأبواب',icon:'🚪'},
+      {id:'restrooms',label:'دورات المياه',icon:'🚻'},
+      {id:'wheelchairs',label:'العربات اليدوية',icon:'♿'},
+      {id:'electric',label:'العربات الكهربائية',icon:'⚡'},
+    ],
+    placeResults:{
+      kaaba:[{name:'الكعبة المشرفة',dist:'المركز',note:'قبلة المسلمين — نقطة بدء الطواف',icon:'🕋'},{name:'الحجر الأسود',dist:'الركن الشرقي',note:'نقطة بداية كل شوط',icon:'⬛'},{name:'الحِجر (حطيم)',dist:'الجهة الشمالية',note:'الصلاة فيه كالصلاة داخل الكعبة',icon:'🤲'}],
+      tawaf:[{name:'مطاف الأرضي',dist:'الطابق الأرضي',note:'الأكثر ازدحاماً',icon:'🔄'},{name:'مطاف الدور الأول',dist:'الطابق الأول',note:'أقل ازدحاماً',icon:'🔄'},{name:'مطاف السطح',dist:'السطح',note:'الأقل ازدحاماً',icon:'🔄'},{name:'مبدأ المسعى - الصفا',dist:'الجهة الجنوبية',note:'ابدأ السعي من هنا',icon:'👣'}],
+      safa:[{name:'جبل الصفا',dist:'الجنوب',note:'نقطة بداية السعي',icon:'⛰️'},{name:'جبل المروة',dist:'الشمال',note:'نقطة نهاية السعي',icon:'⛰️'},{name:'المسعى المغطى',dist:'394م',note:'ممر السعي المكيف',icon:'🏃'}],
+      special:[{name:'مصلى ذوي الاحتياجات - أرضي',dist:'باب الملك عبدالعزيز',note:'ممرات وكراسي خاصة',icon:'♿'},{name:'مصلى ذوي الاحتياجات - أول',dist:'الجانب الشمالي',note:'وصول بالمصعد F3',icon:'♿'}],
+      childcare:[{name:'مركز رعاية الأطفال',dist:'الدور الأول',note:'حضانة + منطقة رضاعة',icon:'👶'},{name:'غرفة الرضاعة',dist:'بجوار باب فهد',note:'مكيفة وخاصة',icon:'🍼'}],
+      elevators:[{name:'مصاعد A1-A4',dist:'الجانب الشمالي',note:'يربط الأرضي بالسطح',icon:'🛗'},{name:'مصاعد B1-B3',dist:'الجانب الجنوبي',note:'يربط البدروم بالدور الثاني',icon:'🛗'},{name:'سلم كهربائي المسعى',dist:'طرفي المسعى',note:'الأرضي للأول',icon:'🚶'}],
+      health:[{name:'مركز الإسعاف الرئيسي',dist:'باب الملك عبدالعزيز',note:'على مدار الساعة',icon:'🏥'},{name:'عيادة الحجاج',dist:'الدور الأول - شرق',note:'رعاية أولية',icon:'💊'},{name:'نقطة إسعاف المسعى',dist:'منتصف المسعى',note:'للإغماء والإرهاق',icon:'🩺'}],
+      services:[{name:'مكتب الضائع والموجود',dist:'باب الملك عبدالله',note:'للأشخاص والأغراض',icon:'🔍'},{name:'مكتب الاستعلامات',dist:'باب الفتح',note:'إرشاد الحجاج',icon:'ℹ️'},{name:'برادات ماء زمزم',dist:'جميع الأدوار',note:'موزعة في كل الطوابق',icon:'💧'}],
+      doors:[{name:'باب الملك عبدالعزيز',dist:'الجنوب',note:'الباب الرئيسي',icon:'🚪'},{name:'باب الفتح',dist:'الغرب',note:'مقابل أبراج البيت',icon:'🚪'},{name:'باب السلام',dist:'الشمال الشرقي',note:'من أقدم الأبواب',icon:'🚪'},{name:'باب الملك فهد',dist:'الشمال الغربي',note:'يطل على الحرم مباشرة',icon:'🚪'}],
+      restrooms:[{name:'دورات المياه - أرضي',dist:'خارج المطاف',note:'6 مواقع',icon:'🚻'},{name:'دورات المياه - أول',dist:'الأطراف',note:'للوضوء والاستخدام',icon:'🚻'},{name:'دورات المياه - بدروم',dist:'تحت المطاف',note:'الأكبر والأقل ازدحاماً',icon:'🚻'}],
+      wheelchairs:[{name:'مركز توزيع العربات - أرضي',dist:'باب الملك عبدالعزيز',note:'إيجار بالساعة',icon:'♿'},{name:'مركز توزيع العربات - غرب',dist:'باب الفتح',note:'للطواف والمسعى',icon:'♿'}],
+      electric:[{name:'محطة كهربائية - شمال',dist:'خارج الحرم',note:'من الفنادق للحرم',icon:'⚡'},{name:'محطة كهربائية - جنوب',dist:'قرب أبراج البيت',note:'للمسنين وذوي الاحتياجات',icon:'⚡'}]
+    },
+    systemPrompt:`أنت مساعد ذكي متخصص في الحج والعمرة والحرمين الشريفين. تجيب باللغة العربية بشكل واضح ومختصر. تساعد في خطوات الحج والعمرة وأحكامها، ومعلومات المسجد الحرام، والأدعية والأذكار، واستخدام التطبيق. كن مختصراً. لا تتجاوز 3 فقرات.`
+  },
+  en: {
+    appName:'Al-Haramain', tagline:'Your Spiritual Journey Companion',
+    heroLabel:'Spiritual Journey', heroTitle:'Welcome to<br><span>Al-Haramain</span>',
+    heroSub:'Everything you need for your sacred journey', heroBadge:'All Connected · 4 Members',
+    quickLabel:'Quick Access', sugLabel:'Suggested Questions',
+    home:'Home', map:'Map', asst:'Assistant', duas:"Du'as", sett:'Settings',
+    mapCardLabel:'Map', mapCardSub:'Live location',
+    asstCardLabel:'AI Assistant', asstCardSub:'Ask about Hajj & Umrah',
+    duasCardLabel:"Du'as", duasCardSub:'Prayers of the Haramain',
+    settCardLabel:'Settings', settCardSub:'Language & alerts',
+    trackTitle:'Family', allInHaram:'All in Haram', members:'Members',
+    famLabel:'Family Members', connected:'Connected',
+    inHaram:'In Haram', floor:'Floor', callBtn:'Call', alertBtn:'Alert',
+    asstTitle:'AI Assistant', asstSub:'Ask me about Hajj, Umrah & the Haramain',
+    asstWelcome:"Assalamu Alaikum! I'm your AI assistant for the Haramain. Ask me anything about Hajj, Umrah, or the rituals. How can I help?",
+    sugChatLabel:'Suggested questions', chatPlaceholder:'Type your question...',
+    duasTitle:"Recommended Du'as", duasSub:'Prayers and remembrance for the rituals',
+    settTitle:'Settings', langLabel:'Language', genLabel:'General',
+    emgLabel:'Emergency', emgCounting:s=>`Sending in ${s} seconds...`, emgSent:'Sent ✓', emgCancel:'Cancel',
+    routeAlert:'Less crowded route available — via King Abdulaziz Gate',
+    modalTitle:'Search Inside Haram', placeCatsLabel:'Browse by category',
+    searchHint:'Search for a place...', noResults:q=>`No results for "${q}"`,
+    errMsg:'Sorry, an error occurred. Please try again.',
+    appVer:'Al-Haramain v1.0 · © 2026',
+    prayers:[{n:'Fajr',t:'05:12'},{n:'Dhuhr',t:'12:28'},{n:'Asr',t:'15:45'},{n:'Maghrib',t:'18:15'},{n:'Isha',t:'19:45'}],
+    floors:[{id:'ground',label:'Ground'},{id:'first',label:'1st Floor'},{id:'second',label:'2nd Floor'},{id:'roof',label:'Roof'},{id:'basement',label:'Basement'}],
+    settRows:[{icon:'🔔',label:'Notifications',sub:'Alerts and notifications'},{icon:'🔒',label:'Privacy',sub:'Security settings'},{icon:'💬',label:'Support',sub:'Contact us'},{icon:'ℹ️',label:'About',sub:'Version info'}],
+    suggested:['How do I perform Tawaf?','What are the prohibitions of Ihram?','How do I use the tracking feature?','How far is Masjid al-Haram from Masa?'],
+    familyData:[
+      {name:'Ahmad',floor:'ground',x:'66%',y:'28%',color:'#185FA5',bg:'#E6F1FB',init:'AH',id:'BR-001',seen:2},
+      {name:'Fatima',floor:'first',x:'38%',y:'55%',color:'#1D9E75',bg:'#E1F5EE',init:'FA',id:'BR-002',seen:0},
+      {name:'Mohammed (8)',floor:'roof',x:'74%',y:'32%',color:'#185FA5',bg:'#E6F1FB',init:'MH',id:'BR-003',seen:1},
+      {name:'Aisha (6)',floor:'second',x:'52%',y:'65%',color:'#533AB7',bg:'#EEEDFE',init:'AI',id:'BR-004',seen:0}
+    ],
+    floorNames:{ground:'Ground Floor',first:'1st Floor',second:'2nd Floor',roof:'Roof',basement:'Basement'},
+    duasList:[
+      {title:"Entering Haram",arabic:'اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ',meaning:"O Allah, open for me the doors of Your mercy",color:'#1D9E75',bg:'#E1F5EE'},
+      {title:"During Tawaf",arabic:'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',meaning:'Our Lord, give us good in this world and the Hereafter',color:'#185FA5',bg:'#E6F1FB'},
+      {title:"During Sa'ee",arabic:'إِنَّ الصَّفَا وَالْمَرْوَةَ مِن شَعَائِرِ اللَّهِ',meaning:'Indeed, Safa and Marwah are among the symbols of Allah',color:'#533AB7',bg:'#EEEDFE'},
+      {title:"General Du'a",arabic:'اللَّهُمَّ إِنِّي أَسْأَلُكَ الْجَنَّةَ وَأَعُوذُ بِكَ مِنَ النَّارِ',meaning:'O Allah, I ask You for Paradise and seek refuge from the Fire',color:'#BA7517',bg:'#FAEEDA'}
+    ],
+    placeCats:[
+      {id:'kaaba',label:'Kaaba',icon:'🕋'},{id:'tawaf',label:'Tawaf & Sa\'ee',icon:'🔄'},
+      {id:'safa',label:'Safa & Marwah',icon:'⛰️'},{id:'special',label:'Special Needs',icon:'♿'},
+      {id:'childcare',label:'Child Care',icon:'👶'},{id:'elevators',label:'Elevators',icon:'🛗'},
+      {id:'health',label:'Health Centers',icon:'🏥'},{id:'services',label:'Services',icon:'🛎️'},
+      {id:'doors',label:'Gates',icon:'🚪'},{id:'restrooms',label:'Restrooms',icon:'🚻'},
+      {id:'wheelchairs',label:'Wheelchairs',icon:'♿'},{id:'electric',label:'Electric Carts',icon:'⚡'},
+    ],
+    placeResults:{
+      kaaba:[{name:'Kaaba',dist:'Center',note:'Qibla of all Muslims',icon:'🕋'},{name:'The Black Stone',dist:'Eastern Corner',note:'Starting point of each circuit',icon:'⬛'},{name:'Al-Hijr (Hateem)',dist:'North Side',note:'Praying here equals praying inside the Kaaba',icon:'🤲'}],
+      tawaf:[{name:'Ground Floor Mataf',dist:'Ground Floor',note:'Most crowded',icon:'🔄'},{name:'1st Floor Mataf',dist:'1st Floor',note:'Less crowded',icon:'🔄'},{name:'Roof Mataf',dist:'Roof',note:'Least crowded',icon:'🔄'},{name:'Safa Start',dist:'South Side',note:'Start Sa\'ee here',icon:'👣'}],
+      safa:[{name:'Mount Safa',dist:'South',note:'Start of Sa\'ee',icon:'⛰️'},{name:'Mount Marwah',dist:'North',note:'End of Sa\'ee',icon:'⛰️'},{name:'Covered Masa',dist:'394m',note:'Air-conditioned walkway',icon:'🏃'}],
+      special:[{name:'Special Needs Musalla - Ground',dist:'King Abdulaziz Gate',note:'Ramps and special chairs',icon:'♿'},{name:'Special Needs Musalla - 1st',dist:'North Side',note:'Elevator access F3',icon:'♿'}],
+      childcare:[{name:'Child Care Center',dist:'1st Floor',note:'Nursery + nursing area',icon:'👶'},{name:'Nursing Room',dist:'Near King Fahd Gate',note:'Air-conditioned, private',icon:'🍼'}],
+      elevators:[{name:'Elevators A1-A4',dist:'North Side',note:'Ground to Roof',icon:'🛗'},{name:'Elevators B1-B3',dist:'South Side',note:'Basement to 2nd Floor',icon:'🛗'},{name:'Escalators - Masa',dist:'Both ends',note:'Ground to 1st Floor',icon:'🚶'}],
+      health:[{name:'Main First Aid',dist:'King Abdulaziz Gate',note:'24/7',icon:'🏥'},{name:'Pilgrim Clinic',dist:'1st Floor East',note:'Primary care',icon:'💊'},{name:'Masa First Aid',dist:'Middle of Masa',note:'For fainting & exhaustion',icon:'🩺'}],
+      services:[{name:'Lost & Found',dist:'King Abdullah Gate',note:'People and belongings',icon:'🔍'},{name:'Information Desk',dist:'Al-Fath Gate',note:'Pilgrim guidance',icon:'ℹ️'},{name:'Zamzam Water',dist:'All Floors',note:'Coolers on every level',icon:'💧'}],
+      doors:[{name:'King Abdulaziz Gate',dist:'South',note:'Main entrance',icon:'🚪'},{name:'Al-Fath Gate',dist:'West',note:'Faces Abraj Al-Bait',icon:'🚪'},{name:'Bab Al-Salam',dist:'NE',note:'One of the oldest gates',icon:'🚪'},{name:'King Fahd Gate',dist:'NW',note:'Direct Haram view',icon:'🚪'}],
+      restrooms:[{name:'Restrooms - Ground',dist:'Outside Mataf',note:'6 locations',icon:'🚻'},{name:'Restrooms - 1st Floor',dist:'Corners',note:'Wudu & general use',icon:'🚻'},{name:'Restrooms - Basement',dist:'Under Mataf',note:'Largest, least crowded',icon:'🚻'}],
+      wheelchairs:[{name:'Wheelchair Center - Main',dist:'King Abdulaziz Gate',note:'Hourly rental',icon:'♿'},{name:'Wheelchair Center - West',dist:'Al-Fath Gate',note:'For Tawaf & Sa\'ee',icon:'♿'}],
+      electric:[{name:'Electric Cart Station - N',dist:'Outside Haram',note:'Hotels to Haram',icon:'⚡'},{name:'Electric Cart Station - S',dist:'Near Abraj Al-Bait',note:'For elderly & special needs',icon:'⚡'}]
+    },
+    systemPrompt:`You are an AI assistant specialized in Hajj, Umrah, and the Two Holy Mosques. Answer clearly and concisely in English. Help with rituals, rulings, du'as, and app usage. Keep answers under 3 paragraphs.`
+  }
+};
+
+const HEATMAP = {
+  ground:[{x:'44%',y:'36%',r:55,c:'#ef4444',o:0.5},{x:'58%',y:'46%',r:32,c:'#f97316',o:0.35},{x:'32%',y:'58%',r:28,c:'#f97316',o:0.3}],
+  first:[{x:'44%',y:'40%',r:38,c:'#f97316',o:0.38},{x:'62%',y:'32%',r:26,c:'#eab308',o:0.28}],
+  second:[{x:'44%',y:'40%',r:28,c:'#eab308',o:0.28},{x:'32%',y:'54%',r:18,c:'#84cc16',o:0.22}],
+  roof:[{x:'44%',y:'40%',r:22,c:'#84cc16',o:0.22}],
+  basement:[{x:'50%',y:'50%',r:38,c:'#f97316',o:0.4},{x:'34%',y:'40%',r:26,c:'#eab308',o:0.28}]
+};
+
+// ============================================================
+// STATE
+// ============================================================
+let lang = 'ar';
+let currentPage = 'home';
+let chatMessages = [];
+let isLoading = false;
+let selectedCat = null;
+let currentFloor = 'ground';
+let emgTimer = null;
+let emgCount = 3;
+
+// ============================================================
+// HELPERS
+// ============================================================
+function t(key) { const d = DATA[lang]||DATA.ar; return typeof d[key]==='function'?d[key]:d[key]; }
+function td() { return DATA[lang]||DATA.ar; }
+
+// ============================================================
+// LANGUAGE
+// ============================================================
+function setLang(l) {
+  lang = l;
+  document.documentElement.lang = l;
+  document.documentElement.dir = l==='ar'?'rtl':'ltr';
+  document.getElementById('btn-ar').className='lang-btn'+(l==='ar'?' active':'');
+  document.getElementById('btn-ar').textContent=l==='ar'?'✓ العربية':'العربية';
+  document.getElementById('btn-en').className='lang-btn'+(l==='en'?' active':'');
+  document.getElementById('btn-en').textContent=l==='en'?'✓ English':'English';
+  // reset chat
+  chatMessages = [];
+  document.getElementById('welcome-screen').style.display='block';
+  document.getElementById('chat-messages').style.display='none';
+  document.getElementById('chat-messages').innerHTML='';
+  renderAll();
+  navigate(currentPage, true);
+}
+
+// ============================================================
+// RENDER ALL
+// ============================================================
+function renderAll() {
+  const d = td();
+  document.getElementById('topbar-name').textContent = d.appName;
+  renderHome(); renderTracking(); renderDuas(); renderSettings(); renderNav();
+  document.getElementById('asst-title').textContent = d.asstTitle;
+  document.getElementById('asst-sub').textContent = d.asstSub;
+  document.getElementById('asst-welcome').textContent = d.asstWelcome;
+  document.getElementById('sug-chat-label').textContent = d.sugChatLabel;
+  document.getElementById('chat-input').placeholder = d.chatPlaceholder;
+  document.getElementById('modal-title').textContent = d.modalTitle;
+  document.getElementById('place-input').placeholder = d.searchHint;
+  document.getElementById('search-hint-text').textContent = d.searchHint;
+  document.getElementById('route-alert-text').textContent = d.routeAlert;
+  document.getElementById('emg-label').textContent = d.emgLabel;
+  document.getElementById('app-ver').textContent = d.appVer;
+  renderSuggestedChat();
+}
+
+function renderHome() {
+  const d = td();
+  document.getElementById('hero-label').textContent = d.heroLabel;
+  document.getElementById('hero-title').innerHTML = d.heroTitle;
+  document.getElementById('hero-sub').textContent = d.heroSub;
+  document.getElementById('hero-badge').textContent = d.heroBadge;
+  document.getElementById('quick-label').textContent = d.quickLabel;
+  document.getElementById('sug-label').textContent = d.sugLabel;
+  // prayer strip
+  document.getElementById('prayer-strip').innerHTML = d.prayers.map((p,i)=>`
+    <div class="prayer-item${i===3?' next':''}">
+      <div class="prayer-name">${p.n}</div>
+      <div class="prayer-time">${p.t}</div>
+    </div>`).join('');
+  // quick cards
+  const cards = [
+    {page:'tracking',color:'#185FA5',bg:'#E6F1FB',label:d.mapCardLabel,sub:d.mapCardSub,icon:`<svg width="18" height="18" fill="none" stroke="#185FA5" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`},
+    {page:'assistant',color:'var(--gold)',bg:'var(--gold-bg)',label:d.asstCardLabel,sub:d.asstCardSub,icon:`<svg width="18" height="18" fill="none" stroke="var(--gold)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>`},
+    {page:'duas',color:'#533AB7',bg:'#EEEDFE',label:d.duasCardLabel,sub:d.duasCardSub,icon:`<svg width="18" height="18" fill="none" stroke="#533AB7" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`},
+    {page:'settings',color:'#BA7517',bg:'#FAEEDA',label:d.settCardLabel,sub:d.settCardSub,icon:`<svg width="18" height="18" fill="none" stroke="#BA7517" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`}
+  ];
+  document.getElementById('quick-grid').innerHTML = cards.map(c=>`
+    <button class="quick-card" onclick="navigate('${c.page}')">
+      <div class="quick-card-icon" style="background:${c.bg};">${c.icon}</div>
+      <div class="quick-card-label">${c.label}</div>
+      <div class="quick-card-sub">${c.sub}</div>
+    </button>`).join('');
+  // suggested
+  document.getElementById('suggested-list').innerHTML = d.suggested.map(q=>`
+    <button class="sug-btn" onclick="navigate('assistant');setTimeout(()=>sendScripted(${JSON.stringify(q)}),120)">
+      <div class="sug-icon"><svg width="13" height="13" fill="none" stroke="var(--gold)" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg></div>
+      <span class="sug-text">${q}</span>
+      <svg width="14" height="14" fill="none" stroke="var(--text3)" stroke-width="2" viewBox="0 0 24 24" style="${lang==='ar'?'transform:scaleX(-1)':''}"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>`).join('');
+}
+
+function renderTracking() {
+  const d = td();
+  document.getElementById('tracking-title').textContent = d.trackTitle;
+  document.getElementById('tracking-sub').textContent = `${d.allInHaram} · 4 ${d.members}`;
+  document.getElementById('members-label').textContent = d.famLabel;
+  // floor tabs
+  document.getElementById('floor-tabs').innerHTML = d.floors.map(f=>`
+    <button class="floor-tab${currentFloor===f.id?' active':''}" onclick="selectFloor('${f.id}')">${f.label}</button>`).join('');
+  renderHeatmap();
+  renderMemberPins();
+  // members list
+  document.getElementById('members-list').innerHTML = d.familyData.map(m=>`
+    <div class="member-card">
+      <div class="member-head">
+        <div class="member-avatar" style="background:${m.bg};color:${m.color};">${m.init}</div>
+        <div style="flex:1;">
+          <div class="member-name">${m.name}</div>
+          <div class="member-id">${m.id}</div>
+          <div class="member-floor" style="color:${m.color};">${d.floorNames[m.floor]}</div>
+        </div>
+        <div class="member-badge" style="background:#dcfce7;color:#166534;">${d.connected}</div>
+      </div>
+      <div class="member-footer">
+        <div class="member-loc" style="background:${m.bg};color:${m.color};">${d.inHaram}</div>
+        <div class="member-actions">
+          <button class="action-btn" style="background:#f3f4f6;color:var(--text2);">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.3a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.48h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            ${d.callBtn}
+          </button>
+          <button class="action-btn" style="background:#fef2f2;color:#991b1b;">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            ${d.alertBtn}
+          </button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function renderHeatmap() {
+  const mapBg = {ground:'#E4EDE4',first:'#E4EAF0',second:'#EBE6F5',roof:'#F0EBE0',basement:'#E4E4F0'};
+  document.getElementById('map-wrap').style.background = mapBg[currentFloor]||'#E4EDE4';
+  const spots = HEATMAP[currentFloor]||[];
+  document.getElementById('heatmap-layer').innerHTML = spots.map(s=>{
+    const r = parseInt(s.r);
+    return `<div style="position:absolute;border-radius:50%;width:${r*2}px;height:${r*2}px;top:calc(${s.y} - ${r}px);left:calc(${s.x} - ${r}px);background:radial-gradient(circle,${s.c}${Math.round(s.o*255).toString(16).padStart(2,'0')} 0%,transparent 70%);pointer-events:none;"></div>`;
+  }).join('');
+}
+
+function renderMemberPins() {
+  const d = td();
+  // show pins for members on current floor
+  document.getElementById('member-pins').innerHTML = d.familyData.map(m=>{
+    if(m.floor !== currentFloor) return '';
+    return `<div class="member-pin" style="left:${m.x};top:${m.y};">
+      <div class="member-pin-avatar" style="background:${m.color};">${m.init}</div>
+      <div class="member-pin-label">${m.name.split(' ')[0]||m.name}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectFloor(id) {
+  currentFloor = id;
+  const d = td();
+  document.getElementById('floor-tabs').querySelectorAll('.floor-tab').forEach((btn,i)=>{
+    btn.className = 'floor-tab' + (d.floors[i].id===id?' active':'');
+  });
+  renderHeatmap();
+  renderMemberPins();
+}
+
+function renderDuas() {
+  const d = td();
+  document.getElementById('duas-title').textContent = d.duasTitle;
+  document.getElementById('duas-sub').textContent = d.duasSub;
+  document.getElementById('duas-list').innerHTML = d.duasList.map(dua=>`
+    <div class="dua-card">
+      <div class="dua-head" style="background:${dua.bg};border-bottom:1px solid ${dua.color}22;">
+        <span style="font-size:13px;font-weight:700;color:${dua.color};">${dua.title}</span>
+      </div>
+      <p class="dua-arabic">${dua.arabic}</p>
+      <div class="dua-meaning">
+        <span style="font-size:12px;color:var(--text3);">${lang==='ar'?'المعنى:':'Meaning:'} </span>
+        <span style="font-size:13px;color:var(--text2);">${dua.meaning}</span>
+      </div>
+    </div>`).join('');
+}
+
+function renderSettings() {
+  const d = td();
+  document.getElementById('sett-title').textContent = d.settTitle;
+  document.getElementById('lang-label').textContent = d.langLabel;
+  document.getElementById('gen-label').textContent = d.genLabel;
+  document.getElementById('emg-label').textContent = d.emgLabel;
+  document.getElementById('app-ver').textContent = d.appVer;
+  document.getElementById('sett-rows').innerHTML = d.settRows.map((r,i,a)=>`
+    <div class="sett-row" style="${i===a.length-1?'border-bottom:none':''}">
+      <div class="sett-icon">${r.icon}</div>
+      <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:var(--text1);">${r.label}</div><div style="font-size:12px;color:var(--text3);">${r.sub}</div></div>
+      <svg width="15" height="15" fill="none" stroke="var(--border)" stroke-width="2.5" viewBox="0 0 24 24" style="${lang==='ar'?'transform:scaleX(-1)':''}"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>`).join('');
+}
+
+function renderNav() {
+  const d = td();
+  const items = [
+    {id:'home',label:d.home,icon:'<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>'},
+    {id:'tracking',label:d.map,icon:'<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'},
+    {id:'assistant',label:d.asst,icon:'<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>'},
+    {id:'duas',label:d.duas,icon:'<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'},
+    {id:'settings',label:d.sett,icon:'<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>'}
+  ];
+  document.getElementById('bottom-nav').innerHTML = items.map(item=>`
+    <button class="nav-btn${currentPage===item.id?' active':''}" onclick="navigate('${item.id}')">
+      ${item.icon}<span>${item.label}</span>
+      ${currentPage===item.id?'<div class="nav-dot"></div>':''}
+    </button>`).join('');
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function navigate(page, force) {
+  ['home','tracking','assistant','duas','settings'].forEach(p=>{
+    const el = document.getElementById('page-'+p);
+    el.style.display = p===page ? (p==='assistant'?'flex':'block') : 'none';
+  });
+  currentPage = page;
+  renderNav();
+  document.getElementById('page-container').scrollTop = 0;
+}
+
+// ============================================================
+// ASSISTANT
+// ============================================================
+function renderSuggestedChat() {
+  const d = td();
+  document.getElementById('suggested-chat').innerHTML = d.suggested.map(q=>`
+    <button onclick="sendScripted(${JSON.stringify(q)})" style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px 13px;cursor:pointer;text-align:${lang==='ar'?'right':'left'};font-size:13px;color:var(--text2);width:100%;display:flex;align-items:center;gap:8px;font-family:var(--font);">
+      <span style="color:var(--gold);">←</span>${q}
+    </button>`).join('');
+}
+
+function updateSendBtn() {
+  const v = document.getElementById('chat-input').value.trim();
+  const rdy = v && !isLoading;
+  document.getElementById('send-btn').className = rdy ? 'ready' : '';
+  document.getElementById('send-icon').setAttribute('stroke', rdy ? 'var(--gold)' : 'var(--text3)');
+}
+document.getElementById('chat-input').addEventListener('input', updateSendBtn);
+document.getElementById('chat-input').addEventListener('keydown', e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();} });
+
+// Scripted: uses local answers for suggested questions
+function sendScripted(q) {
+  const scripts = SUGGESTED_SCRIPTS[lang] || SUGGESTED_SCRIPTS.ar;
+  const reply = scripts[q];
+  if(reply) {
+    showChatStart();
+    chatMessages.push({role:'user',content:q});
+    chatMessages.push({role:'assistant',content:reply});
+    renderMessages();
+  } else {
+    sendMessage(q);
+  }
+}
+
+function showChatStart() {
+  document.getElementById('welcome-screen').style.display='none';
+  const chatEl = document.getElementById('chat-messages');
+  chatEl.style.display='flex';
+}
+
+async function sendMessage(text) {
+  const d = td();
+  const userText = text || document.getElementById('chat-input').value.trim();
+  if(!userText || isLoading) return;
+  document.getElementById('chat-input').value = '';
+  updateSendBtn();
+  chatMessages.push({role:'user',content:userText});
+  showChatStart();
+  isLoading = true;
+  renderMessages();
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:d.systemPrompt,messages:chatMessages})
+    });
+    const data = await res.json();
+    chatMessages.push({role:'assistant',content:data.content?.map(b=>b.text||'').join('')||d.errMsg});
+  } catch(e) {
+    chatMessages.push({role:'assistant',content:d.errMsg});
+  }
+  isLoading = false;
+  renderMessages();
+  updateSendBtn();
+}
+
+function renderMessages() {
+  const chatEl = document.getElementById('chat-messages');
+  chatEl.innerHTML = chatMessages.map(msg=>`
+    <div class="msg-row${msg.role==='user'?' user':''}">
+      <div class="msg-av" style="background:${msg.role==='user'?'var(--dark)':'#fff'};border:${msg.role==='user'?'none':'1px solid var(--border)'};">
+        ${msg.role==='user'
+          ? '<svg width="13" height="13" fill="none" stroke="var(--gold)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+          : '<svg width="13" height="13" fill="none" stroke="var(--gold)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>'}
+      </div>
+      <div class="msg-bubble ${msg.role==='user'?'user':'bot'}">${msg.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>')}</div>
+    </div>`).join('');
+  if(isLoading) chatEl.innerHTML += `
+    <div class="msg-row">
+      <div class="msg-av" style="background:#fff;border:1px solid var(--border);"><svg width="13" height="13" fill="none" stroke="var(--gold)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg></div>
+      <div class="msg-bubble bot" style="padding:10px 14px;display:flex;gap:4px;align-items:center;">
+        <span class="typing-dot" style="animation-delay:0s"></span>
+        <span class="typing-dot" style="animation-delay:.2s"></span>
+        <span class="typing-dot" style="animation-delay:.4s"></span>
+      </div>
+    </div>`;
+  chatEl.innerHTML += '<div id="msg-end"></div>';
+  document.getElementById('msg-end')?.scrollIntoView({behavior:'smooth'});
+}
+
+// ============================================================
+// EMERGENCY
+// ============================================================
+function startEmergency() {
+  if(emgTimer) return;
+  const d = td();
+  emgCount = 3;
+  document.getElementById('emg-btn').className = 'emg-btn counting';
+  document.getElementById('emg-label').textContent = d.emgCounting(emgCount);
+  document.getElementById('emg-timer-wrap').style.display = 'block';
+  document.getElementById('emg-cancel').textContent = d.emgCancel;
+  document.getElementById('emg-bar').style.width = '100%';
+  const start = Date.now();
+  const total = 3000;
+  emgTimer = setInterval(()=>{
+    const elapsed = Date.now() - start;
+    const remaining = Math.max(0, total - elapsed);
+    const secs = Math.ceil(remaining/1000);
+    document.getElementById('emg-bar').style.width = (remaining/total*100)+'%';
+    document.getElementById('emg-countdown').textContent = secs+'s';
+    document.getElementById('emg-label').textContent = d.emgCounting(secs);
+    if(remaining <= 0) {
+      clearInterval(emgTimer); emgTimer = null;
+      document.getElementById('emg-btn').className = 'emg-btn sent';
+      document.getElementById('emg-label').textContent = d.emgSent;
+      document.getElementById('emg-timer-wrap').style.display = 'none';
+      setTimeout(()=>{
+        document.getElementById('emg-btn').className = 'emg-btn idle';
+        document.getElementById('emg-label').textContent = d.emgLabel;
+      }, 3000);
+    }
+  }, 50);
+}
+function cancelEmergency() {
+  if(!emgTimer) return;
+  clearInterval(emgTimer); emgTimer = null;
+  const d = td();
+  document.getElementById('emg-btn').className = 'emg-btn idle';
+  document.getElementById('emg-label').textContent = d.emgLabel;
+  document.getElementById('emg-timer-wrap').style.display = 'none';
+}
+
+// ============================================================
+// PLACE SEARCH
+// ============================================================
+function openPlaceSearch() {
+  selectedCat = null;
+  document.getElementById('place-input').value = '';
+  document.getElementById('clr-btn').style.display = 'none';
+  document.getElementById('place-modal').classList.add('open');
+  renderPlaceBody();
+  setTimeout(()=>document.getElementById('place-input').focus(),250);
+}
+function closePlaceSearch() { document.getElementById('place-modal').classList.remove('open'); }
+function onPlaceSearch() {
+  selectedCat = null;
+  document.getElementById('clr-btn').style.display = document.getElementById('place-input').value ? 'block' : 'none';
+  renderPlaceBody();
+}
+function clearSearch() {
+  selectedCat = null;
+  document.getElementById('place-input').value = '';
+  document.getElementById('clr-btn').style.display = 'none';
+  renderPlaceBody();
+}
+function selectCat(id) { selectedCat = selectedCat===id?null:id; renderPlaceBody(); }
+
+function renderPlaceBody() {
+  const d = td();
+  const q = document.getElementById('place-input').value.trim().toLowerCase();
+  let html = '';
+  if(!q) {
+    html = `<p style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);margin:12px 0 8px;">${d.placeCatsLabel}</p>
+    <div class="cats-grid">${d.placeCats.map(c=>`
+      <button class="cat-btn${selectedCat===c.id?' active':''}" onclick="selectCat('${c.id}')">
+        <div class="cat-icon">${c.icon}</div>
+        <div class="cat-label">${c.label}</div>
+      </button>`).join('')}</div>`;
+  }
+  let results = [];
+  if(selectedCat&&!q) results = d.placeResults[selectedCat]||[];
+  else if(q) results = Object.values(d.placeResults).flat().filter(p=>p.name.toLowerCase().includes(q)||p.note.toLowerCase().includes(q));
+  if(results.length) {
+    html += `<div style="margin-top:${q?'0':'12px'}">${selectedCat&&!q?`<p style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);margin:0 0 8px;">${d.placeCats.find(c=>c.id===selectedCat)?.label||''}</p>`:''}
+    ${results.map(p=>`
+      <div class="result-row">
+        <div class="result-icon-box">${p.icon}</div>
+        <div style="flex:1;"><div class="result-name">${p.name}</div><div class="result-note">${p.note}</div></div>
+        <div class="result-dist">${p.dist}</div>
+      </div>`).join('')}</div>`;
+  } else if(q) {
+    html += `<div style="padding:32px 0;text-align:center;"><div style="font-size:28px;margin-bottom:8px;">🔍</div><div style="font-size:14px;color:var(--text2);">${d.noResults(q)}</div></div>`;
+  }
+  document.getElementById('place-body').innerHTML = html;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+renderAll();
+navigate('home');
+</script>
+</body>
+</html>
